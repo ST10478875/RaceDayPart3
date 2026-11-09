@@ -88,5 +88,5 @@ The project uses GitHub Actions for automated build validation.
 
 \## Demonstration Video
 
-Video link: https://youtu.be/41g07pcNGjI
+Video link: https://youtu.be/eZMsq9Qu2_s
 
