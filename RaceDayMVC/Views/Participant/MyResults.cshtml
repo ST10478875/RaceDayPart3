@@ -1,0 +1,38 @@
+﻿@model IEnumerable<RaceDayMVC.Models.ResultVm>
+@{
+    ViewData["Title"] = "Race Results";
+}
+
+<div class="container mt-4">
+    <h2>Race Results</h2>
+    <hr />
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Event Name</th>
+                    <th>Participant Email</th>
+                    <th>Position</th>
+                    <th>Time Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var res in Model)
+                {
+                    <tr>
+                        <td>@res.EventName</td>
+                        <td>@res.ParticipantEmail</td>
+                        <td>@res.Position</td>
+                        <td>@res.TimeTaken</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">No race results are available yet.</div>
+    }
+</div>

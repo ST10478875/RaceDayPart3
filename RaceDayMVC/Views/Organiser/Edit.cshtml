@@ -1,0 +1,105 @@
+﻿@model RaceDayMVC.Models.EventViewModel
+
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<div class="container mt-4">
+
+    <h2>Edit Race Event</h2>
+    <hr />
+
+    <form asp-controller="Organiser"
+          asp-action="Edit"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <!-- Keep the event ID when submitting the form -->
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- Event name -->
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Event Name</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description"
+                      class="form-control"></textarea>
+            <span asp-validation-for="Description"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Event date -->
+        <div class="mb-3">
+            <label asp-for="Date" class="form-label"></label>
+            <input asp-for="Date"
+                   type="datetime-local"
+                   class="form-control"
+                   value="@Model.Date.ToString("yyyy-MM-ddTHH:mm")" />
+            <span asp-validation-for="Date"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Location -->
+        <div class="mb-3">
+            <label asp-for="Location" class="form-label"></label>
+            <input asp-for="Location" class="form-control" />
+            <span asp-validation-for="Location"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Distance -->
+        <div class="mb-3">
+            <label asp-for="Distance" class="form-label">
+                Distance (km)
+            </label>
+            <input asp-for="Distance"
+                   type="number"
+                   step="0.1"
+                   class="form-control" />
+            <span asp-validation-for="Distance"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Event type -->
+        <div class="mb-3">
+            <label asp-for="EventType" class="form-label"></label>
+
+            <select asp-for="EventType" class="form-select">
+                <option value="">-- Select Event Type --</option>
+                <option value="Run">Run</option>
+                <option value="Walk">Walk</option>
+                <option value="Cycling">Cycling</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <span asp-validation-for="EventType"
+                  class="text-danger"></span>
+        </div>
+
+        <!-- Submit changes -->
+        <button type="submit" class="btn btn-primary">
+            Save Changes
+        </button>
+
+        <a asp-controller="Organiser"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

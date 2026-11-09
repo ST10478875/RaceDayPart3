@@ -1,20 +1,92 @@
-# RaceDayPart2
-https://youtu.be/Rb5-weRDBcg
-API service for managing race day registrations and events.
-## Controllers Included
-AuthController - Handles user registration and login authentication.
-CategoriesController - Manages event age and race categories.
-EnrolmentsController - Registers participants into race events
-EventsController - Manages scheduling and venue details.
-ResultsController - Tracks athlete completion times and rankings
-## Project Architecture
-ASP.NET Core Web API 8.0
-Entity Framework Core ORM
-SQL Server Database Integration
-## API Setup & Execution
-1. Open solution in Visual Studio 2022.
-2. Update database connection string in appsettings.json.
-3. Execute Update-Database command in Package Manager Console.
-4. Press F5 to launch Swagger UI
-## Submission Notes
-Completed for RaceDay API Part 2 project submission
+\# RaceDay – Part 3
+
+
+
+\## Project Overview
+
+RaceDay is a web-based race event management system developed using ASP.NET Core MVC and ASP.NET Core Web API.
+
+
+
+The system allows organisers to manage race events, categories, enrolments and results. Participants can browse events, enter races, view their enrolments and results, and manage their profiles.
+
+
+
+\## Technologies Used
+
+\- C#
+
+\- ASP.NET Core MVC
+
+\- ASP.NET Core Web API
+
+\- Entity Framework Core
+
+\- SQL Server LocalDB
+
+\- Azure Blob Storage
+
+\- HTML, CSS and Bootstrap
+
+\- Docker
+
+\- GitHub
+
+
+
+\## Project Structure
+
+\- RaceDayMVC – MVC frontend application.
+
+\- RaceDayPart2 – Web API backend.
+
+\- RaceDayPart3.sln – Combined Visual Studio solution.
+
+
+
+\## Main Features
+
+\- User registration and login.
+
+\- Role-based access for organisers and participants.
+
+\- Event creation and management.
+
+\- Race category management.
+
+\- Participant enrolments.
+
+\- Race results management.
+
+\- Participant profile management.
+
+\- Profile image uploads using Azure Blob Storage.
+
+
+
+\## Running the Application
+
+Open RaceDayPart3.sln in Visual Studio 2022.
+
+
+
+Set the API and MVC projects to run, and ensure the database and Azure Blob Storage configuration are available.
+
+
+
+\## Docker
+
+Docker configuration and instructions will be documented here.
+
+
+
+\## CI/CD
+
+The project uses GitHub Actions for automated build validation.
+
+
+
+\## Demonstration Video
+
+Video link: To be added.
+

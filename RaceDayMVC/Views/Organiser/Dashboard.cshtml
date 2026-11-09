@@ -1,0 +1,97 @@
+﻿@model IEnumerable<RaceDayMVC.Models.EventViewModel>
+
+@{
+    ViewData["Title"] = "Organiser Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2 class="fw-bold">Organiser Dashboard</h2>
+        <p class="text-muted">Overview of your created events, enrolments, and timelines.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Total Events</h5>
+                <h3 class="fw-bold">@(Model?.Count() ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Total Enrolments</h5>
+                <h3 class="fw-bold">@ViewBag.TotalEnrolments</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-dark shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title">Upcoming Races</h5>
+                <h3 class="fw-bold">@ViewBag.UpcomingCount</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0 fw-bold">Your Events</h5>
+        <a asp-action="CreateEvent" class="btn btn-warning btn-sm fw-bold text-dark">+ Create New Event</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Banner</th>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Distance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.BannerImageUrl))
+                                    {
+                                        <img src="@item.BannerImageUrl" alt="Banner" class="rounded shadow-sm" style="width: 50px; height: 35px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No Image</span>
+                                    }
+                                </td>
+                                <td class="fw-bold">@item.Name</td>
+                                <td>@item.Date.ToShortDateString()</td>
+                                <td>@item.Location</td>
+                                <td>@item.Distance km</td>
+                                <td>
+                                    <a asp-action="EditEvent" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a asp-action="EventEnrolments" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Enrolments</a>
+                                    <a asp-action="CaptureResults" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Results</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No events found. Click "+ Create New Event" to get started.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

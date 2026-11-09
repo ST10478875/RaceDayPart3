@@ -1,0 +1,143 @@
+﻿@model IEnumerable<RaceDayMVC.Models.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Manage Categories";
+    int eventId = (int)ViewBag.EventId;
+}
+
+<div class="container mt-4">
+
+    <h2>Manage Event Categories</h2>
+
+    <p class="text-muted">
+        Add, edit or delete categories for this event.
+    </p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <hr />
+
+    <h4>Add New Category</h4>
+
+    <form asp-controller="Organiser"
+          asp-action="CreateCategory"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="EventId" value="@eventId" />
+
+        <div class="mb-3">
+            <label class="form-label">Category Name</label>
+
+            <input type="text"
+                   name="Name"
+                   class="form-control"
+                   placeholder="Enter category name"
+                   minlength="2"
+                   maxlength="100"
+                   required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Add Category
+        </button>
+    </form>
+
+    <hr />
+
+    <h4>Existing Categories</h4>
+
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var category in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+
+                    <form asp-controller="Organiser"
+                          asp-action="EditCategory"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="Id"
+                               value="@category.Id" />
+
+                        <input type="hidden"
+                               name="EventId"
+                               value="@eventId" />
+
+                        <label class="form-label">Category Name</label>
+
+                        <div class="input-group">
+                            <input type="text"
+                                   name="Name"
+                                   value="@category.Name"
+                                   class="form-control"
+                                   minlength="2"
+                                   maxlength="100"
+                                   required />
+
+                            <button type="submit"
+                                    class="btn btn-warning">
+                                Update
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <form asp-controller="Organiser"
+                          asp-action="DeleteCategory"
+                          method="post"
+                          class="mt-2"
+                          onsubmit="return confirm('Are you sure you want to delete this category?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@category.Id" />
+
+                        <input type="hidden"
+                               name="eventId"
+                               value="@eventId" />
+
+                        <button type="submit"
+                                class="btn btn-danger btn-sm">
+                            Delete
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No categories have been added to this event yet.
+        </div>
+    }
+
+    <a asp-controller="Organiser"
+       asp-action="Index"
+       class="btn btn-secondary mt-3">
+        Back to Organiser Dashboard
+    </a>
+
+</div>

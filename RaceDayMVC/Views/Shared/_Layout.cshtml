@@ -1,0 +1,176 @@
+﻿```cshtml
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    // Read the logged-in user's session details.
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("UserRole")?.Trim();
+    var username = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+
+    // Accept either spelling of Organiser/Organizer.
+    bool isOrganiser =
+        string.Equals(role, "Organiser", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(role, "Organizer", StringComparison.OrdinalIgnoreCase);
+
+    bool isParticipant =
+        string.Equals(role, "Participant", StringComparison.OrdinalIgnoreCase);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - RaceDayMVC</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RaceDayMVC.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm mb-3">
+            <div class="container-fluid">
+
+                <a class="navbar-brand fw-bold text-dark"
+                   asp-controller="Home" asp-action="Index">
+                    RaceDay 🏁
+                </a>
+
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <ul class="navbar-nav me-auto">
+
+                        @if (isOrganiser)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Organiser" asp-action="Index">
+                                    Dashboard
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold text-primary"
+                                   asp-controller="Organiser" asp-action="Create">
+                                    + Create Event
+                                </a>
+                            </li>
+                        }
+                        else if (isParticipant)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Participant" asp-action="Catalog">
+                                    Upcoming Events
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Participant" asp-action="MyEnrolments">
+                                    My Enrolments
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Participant" asp-action="MyResults">
+                                    My Results
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Participant" asp-action="Profile">
+                                    Profile
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Home" asp-action="Index">
+                                    Home
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
+                    <ul class="navbar-nav">
+
+                        @if (!string.IsNullOrWhiteSpace(username))
+                        {
+                            <li class="nav-item d-flex align-items-center me-3">
+                                <span class="fw-bold">Hello, @username</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-controller="Account"
+                                      asp-action="Logout"
+                                      method="post">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-outline-dark btn-sm">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Account" asp-action="Login">
+                                    Login
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Account" asp-action="Register">
+                                    Register
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - RaceDayMVC -
+            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+```

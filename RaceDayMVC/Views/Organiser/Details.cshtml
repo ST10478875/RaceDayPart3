@@ -1,0 +1,36 @@
+﻿@model RaceDayMVC.Models.EventViewModel
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container mt-4">
+    <h2>Event Details</h2>
+    <hr />
+
+    <dl class="row">
+        <dt class="col-sm-3">Event Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+
+        <dt class="col-sm-3">Date</dt>
+        <dd class="col-sm-9">@Model.Date.ToString("dd MMMM yyyy HH:mm")</dd>
+
+        <dt class="col-sm-3">Location</dt>
+        <dd class="col-sm-9">@Model.Location</dd>
+
+        <dt class="col-sm-3">Distance</dt>
+        <dd class="col-sm-9">@Model.Distance km</dd>
+
+        <dt class="col-sm-3">Event Type</dt>
+        <dd class="col-sm-9">@Model.EventType</dd>
+    </dl>
+
+    <a asp-controller="Organiser" asp-action="Edit"
+       asp-route-id="@Model.Id" class="btn btn-primary">Edit Event</a>
+
+    <a asp-controller="Organiser" asp-action="Index"
+       class="btn btn-secondary">Back to Dashboard</a>
+</div>

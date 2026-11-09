@@ -1,25 +1,26 @@
-name: .NET Build & Test
+name: RaceDay Part 3 Build
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
+
     - name: Restore dependencies
-      run: dotnet restore RaceDayPart2.csproj
-      
-    - name: Build
-      run: dotnet build RaceDayPart2.csproj --no-restore
+      run: dotnet restore RaceDayPart3.sln
+
+    - name: Build solution
+      run: dotnet build RaceDayPart3.sln --no-restore --configuration Release
