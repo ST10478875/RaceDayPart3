@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RaceDayMVC.Models;
 using System.Text.Json;
+using System.Net.Http.Json;
 
 namespace RaceDayMVC.Controllers
 {
@@ -9,14 +10,21 @@ namespace RaceDayMVC.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
         public OrganiserController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
+        // Check whether the logged-in user is an organiser.
         private bool IsOrganiser()
         {
             var role = HttpContext.Session.GetString("UserRole");
+
             return role == "Organizer" || role == "Organiser";
         }
 
@@ -39,11 +47,7 @@ namespace RaceDayMVC.Controllers
                     var json = await response.Content.ReadAsStringAsync();
 
                     events = JsonSerializer.Deserialize<List<EventViewModel>>(
-                        json,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        }) ?? new List<EventViewModel>();
+                        json, JsonOptions) ?? new List<EventViewModel>();
                 }
                 else
                 {
@@ -54,7 +58,9 @@ namespace RaceDayMVC.Controllers
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the RaceDay API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the RaceDay API.";
+
                 return View(new List<EventViewModel>());
             }
         }
@@ -76,11 +82,7 @@ namespace RaceDayMVC.Controllers
                     var json = await response.Content.ReadAsStringAsync();
 
                     var ev = JsonSerializer.Deserialize<EventViewModel>(
-                        json,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                        json, JsonOptions);
 
                     if (ev != null)
                         return View(ev);
@@ -111,11 +113,7 @@ namespace RaceDayMVC.Controllers
                     var json = await response.Content.ReadAsStringAsync();
 
                     var ev = JsonSerializer.Deserialize<EventViewModel>(
-                        json,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                        json, JsonOptions);
 
                     if (ev != null)
                         return View(ev);
@@ -149,18 +147,26 @@ namespace RaceDayMVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMessage"] = "Event updated successfully!";
+                    TempData["SuccessMessage"] =
+                        "Event updated successfully!";
+
                     return RedirectToAction("Index");
                 }
 
                 var error = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", "Failed to update event: " + error);
+
+                ModelState.AddModelError(
+                    "",
+                    "Failed to update event: " + error);
 
                 return View(model);
             }
             catch (HttpRequestException)
             {
-                ModelState.AddModelError("", "Could not connect to the API.");
+                ModelState.AddModelError(
+                    "",
+                    "Could not connect to the API.");
+
                 return View(model);
             }
         }
@@ -190,7 +196,10 @@ namespace RaceDayMVC.Controllers
 
             if (!int.TryParse(userId, out int organiserId))
             {
-                ModelState.AddModelError("", "Your organiser account could not be identified.");
+                ModelState.AddModelError(
+                    "",
+                    "Your organiser account could not be identified.");
+
                 return View(model);
             }
 
@@ -217,18 +226,26 @@ namespace RaceDayMVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMessage"] = "Event created successfully!";
+                    TempData["SuccessMessage"] =
+                        "Event created successfully!";
+
                     return RedirectToAction("Index");
                 }
 
                 var error = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", "Could not create event: " + error);
+
+                ModelState.AddModelError(
+                    "",
+                    "Could not create event: " + error);
 
                 return View(model);
             }
             catch (HttpRequestException)
             {
-                ModelState.AddModelError("", "Could not connect to the API.");
+                ModelState.AddModelError(
+                    "",
+                    "Could not connect to the API.");
+
                 return View(model);
             }
         }
@@ -247,15 +264,21 @@ namespace RaceDayMVC.Controllers
                 var response = await client.DeleteAsync($"api/events/{id}");
 
                 if (response.IsSuccessStatusCode)
-                    TempData["SuccessMessage"] = "Event deleted successfully!";
+                {
+                    TempData["SuccessMessage"] =
+                        "Event deleted successfully!";
+                }
                 else
+                {
                     TempData["ErrorMessage"] =
                         "Could not delete event. " +
                         await response.Content.ReadAsStringAsync();
+                }
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the RaceDay API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the RaceDay API.";
             }
 
             return RedirectToAction("Index");
@@ -285,11 +308,7 @@ namespace RaceDayMVC.Controllers
 
                 var categories =
                     JsonSerializer.Deserialize<List<CategoryViewModel>>(
-                        json,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        }) ?? new List<CategoryViewModel>();
+                        json, JsonOptions) ?? new List<CategoryViewModel>();
 
                 ViewBag.EventId = eventId;
 
@@ -297,7 +316,9 @@ namespace RaceDayMVC.Controllers
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the API.";
+
                 return RedirectToAction("Index");
             }
         }
@@ -305,15 +326,19 @@ namespace RaceDayMVC.Controllers
         // CREATE CATEGORY
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCategory(CategoryViewModel model)
+        public async Task<IActionResult> CreateCategory(
+            CategoryViewModel model)
         {
             if (!IsOrganiser())
                 return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Please enter a valid category name.";
-                return RedirectToAction("Categories", new { eventId = model.EventId });
+                TempData["ErrorMessage"] =
+                    "Please enter a valid category name.";
+
+                return RedirectToAction(
+                    "Categories", new { eventId = model.EventId });
             }
 
             try
@@ -322,38 +347,45 @@ namespace RaceDayMVC.Controllers
 
                 var response = await client.PostAsJsonAsync(
                     "api/categories",
-                    new
-                    {
-                        model.Name,
-                        model.EventId
-                    });
+                    new { model.Name, model.EventId });
 
                 if (response.IsSuccessStatusCode)
-                    TempData["SuccessMessage"] = "Category created successfully!";
+                {
+                    TempData["SuccessMessage"] =
+                        "Category created successfully!";
+                }
                 else
+                {
                     TempData["ErrorMessage"] =
                         await response.Content.ReadAsStringAsync();
+                }
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the API.";
             }
 
-            return RedirectToAction("Categories", new { eventId = model.EventId });
+            return RedirectToAction(
+                "Categories", new { eventId = model.EventId });
         }
 
         // EDIT CATEGORY
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCategory(CategoryViewModel model)
+        public async Task<IActionResult> EditCategory(
+            CategoryViewModel model)
         {
             if (!IsOrganiser())
                 return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Please enter a valid category name.";
-                return RedirectToAction("Categories", new { eventId = model.EventId });
+                TempData["ErrorMessage"] =
+                    "Please enter a valid category name.";
+
+                return RedirectToAction(
+                    "Categories", new { eventId = model.EventId });
             }
 
             try
@@ -365,17 +397,24 @@ namespace RaceDayMVC.Controllers
                     new { model.Name });
 
                 if (response.IsSuccessStatusCode)
-                    TempData["SuccessMessage"] = "Category updated successfully!";
+                {
+                    TempData["SuccessMessage"] =
+                        "Category updated successfully!";
+                }
                 else
+                {
                     TempData["ErrorMessage"] =
                         await response.Content.ReadAsStringAsync();
+                }
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the API.";
             }
 
-            return RedirectToAction("Categories", new { eventId = model.EventId });
+            return RedirectToAction(
+                "Categories", new { eventId = model.EventId });
         }
 
         // DELETE CATEGORY
@@ -394,17 +433,158 @@ namespace RaceDayMVC.Controllers
                     $"api/categories/{id}");
 
                 if (response.IsSuccessStatusCode)
-                    TempData["SuccessMessage"] = "Category deleted successfully!";
+                {
+                    TempData["SuccessMessage"] =
+                        "Category deleted successfully!";
+                }
                 else
+                {
                     TempData["ErrorMessage"] =
                         await response.Content.ReadAsStringAsync();
+                }
             }
             catch (HttpRequestException)
             {
-                TempData["ErrorMessage"] = "Could not connect to the API.";
+                TempData["ErrorMessage"] =
+                    "Could not connect to the API.";
             }
 
-            return RedirectToAction("Categories", new { eventId });
+            return RedirectToAction(
+                "Categories", new { eventId });
+        }
+
+        // DISPLAY RESULTS FOR A SELECTED EVENT
+        [HttpGet]
+        public async Task<IActionResult> Results(int eventId)
+        {
+            if (!IsOrganiser())
+                return RedirectToAction("Login", "Account");
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("RaceDayAPI");
+
+                var response = await client.GetAsync(
+                    $"api/enrolments/event/{eventId}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["ErrorMessage"] =
+                        "Could not load event participants.";
+
+                    return RedirectToAction("Index");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                // Match API JSON property names to C# model properties,
+                // regardless of uppercase or lowercase letters.
+                var enrolments =
+                    JsonSerializer.Deserialize<List<EnrolmentResultVm>>(
+                        json, JsonOptions) ?? new List<EnrolmentResultVm>();
+
+                var model = new OrganiserResultsPageVm
+                {
+                    EventId = eventId,
+                    Enrolments = enrolments
+                };
+
+                if (enrolments.Any())
+                {
+                    model.EventName = enrolments.First().EventName;
+                }
+                else
+                {
+                    var eventResponse = await client.GetAsync(
+                        $"api/events/{eventId}");
+
+                    if (eventResponse.IsSuccessStatusCode)
+                    {
+                        var eventJson =
+                            await eventResponse.Content.ReadAsStringAsync();
+
+                        var raceEvent =
+                            JsonSerializer.Deserialize<EventViewModel>(
+                                eventJson, JsonOptions);
+
+                        model.EventName = raceEvent?.Name ?? "Race Event";
+                    }
+                }
+
+                return View(model);
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Could not connect to the RaceDay API.";
+
+                return RedirectToAction("Index");
+            }
+            catch (JsonException)
+            {
+                TempData["ErrorMessage"] =
+                    "The results received from the API could not be read.";
+
+                return RedirectToAction("Index");
+            }
+        }
+
+        // SAVE OR UPDATE A PARTICIPANT'S RACE RESULT
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveResult(
+            int eventId,
+            int enrolmentId,
+            TimeSpan finishTime,
+            int position)
+        {
+            if (!IsOrganiser())
+                return RedirectToAction("Login", "Account");
+
+            if (finishTime <= TimeSpan.Zero || position < 1)
+            {
+                TempData["Error"] =
+                    "Please enter a valid finishing time and position.";
+
+                return RedirectToAction(
+                    nameof(Results), new { eventId });
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("RaceDayAPI");
+
+                var result = new
+                {
+                    EnrolmentId = enrolmentId,
+                    FinishTime = finishTime,
+                    Position = position
+                };
+
+                var response = await client.PostAsJsonAsync(
+                    "api/results", result);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] =
+                        "Race result saved successfully!";
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+
+                    TempData["Error"] =
+                        "Could not save result: " + error;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] =
+                    "Could not connect to the RaceDay API.";
+            }
+
+            return RedirectToAction(
+                nameof(Results), new { eventId });
         }
     }
 }

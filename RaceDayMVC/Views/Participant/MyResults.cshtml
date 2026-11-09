@@ -1,38 +1,61 @@
 ﻿@model IEnumerable<RaceDayMVC.Models.ResultVm>
+
 @{
-    ViewData["Title"] = "Race Results";
+    ViewData["Title"] = "My Race Results";
 }
 
 <div class="container mt-4">
-    <h2>Race Results</h2>
+    <h2 class="mb-3">My Race Results</h2>
+    <p class="text-muted">View your recorded race positions and finishing times.</p>
     <hr />
 
     @if (Model != null && Model.Any())
     {
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Event Name</th>
-                    <th>Participant Email</th>
-                    <th>Position</th>
-                    <th>Time Taken</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var res in Model)
-                {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered mt-3">
+                <thead class="table-dark">
                     <tr>
-                        <td>@res.EventName</td>
-                        <td>@res.ParticipantEmail</td>
-                        <td>@res.Position</td>
-                        <td>@res.TimeTaken</td>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Location</th>
+                        <th>Category</th>
+                        <th>Position</th>
+                        <th>Finish Time</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    @foreach (var res in Model)
+                    {
+                        <tr>
+                            <td>@(res.Event?.Name ?? "Unknown Event")</td>
+                            <td>
+                                @(res.Event != null
+                                                        ? res.Event.Date.ToString("dd MMM yyyy")
+                                                        : "N/A")
+                    </td>
+                    <td>@(res.Event?.Location ?? "N/A")</td>
+                    <td>@(res.Category?.Name ?? "N/A")</td>
+                    <td>
+                        <span class="badge bg-primary">
+                            @res.Position
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-success">
+                            @res.FinishTime.ToString(@"hh\:mm\:ss")
+                        </span>
+                    </td>
+                </tr>
+                                }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
-        <div class="alert alert-info">No race results are available yet.</div>
+        <div class="alert alert-info">
+            No race results are available yet.
+        </div>
     }
 </div>

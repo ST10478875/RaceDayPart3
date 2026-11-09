@@ -6,11 +6,13 @@ using RaceDay.API.models;
 using System.ComponentModel.DataAnnotations;
 
 namespace RaceDay.API.Controllers
-{
+{//start of namespace 
+
     [Route("api/[controller]")]
     [ApiController]
     public class EnrolmentsController : ControllerBase
-    {
+    {//start of class
+
         private readonly RaceDayDbContext _context;
 
         public EnrolmentsController(RaceDayDbContext context)
@@ -19,7 +21,7 @@ namespace RaceDay.API.Controllers
         }
 
         // GET: api/Enrolments
-        // Retrieve all enrolments with participant, event, category and result details.
+        // Retrieve all enrolments.
         [HttpGet]
         public async Task<IActionResult> GetEnrolments()
         {
@@ -34,13 +36,44 @@ namespace RaceDay.API.Controllers
             return Ok(enrolments);
         }
 
+        // GET: api/Enrolments/event/1
+        // Retrieve participants and their saved results for an event.
+        [HttpGet("event/{eventId}")]
+        public async Task<IActionResult> GetEnrolmentsByEvent(int eventId)
+        {
+            var enrolments = await (
+                from e in _context.Enrolments
+                join u in _context.Users on e.UserId equals u.Id
+                join ev in _context.Events on e.EventId equals ev.Id
+                join c in _context.Categories on e.CategoryId equals c.Id
+                join r in _context.Results
+                    on e.Id equals r.EnrolmentId into resultGroup
+                from r in resultGroup.DefaultIfEmpty()
+                where e.EventId == eventId
+                select new
+                {
+                    EnrolmentId = e.Id,
+                    ParticipantEmail = u.Email,
+                    EventName = ev.Name,
+                    CategoryName = c.Name,
+                    FinishTime = r == null
+                        ? (TimeSpan?)null
+                        : r.FinishTime,
+                    Position = r == null
+                        ? (int?)null
+                        : r.Position
+                }
+            ).ToListAsync();
+
+            return Ok(enrolments);
+        }
+
         // GET: api/Enrolments/my-enrolments?email=runner@example.com
         // Retrieve enrolments belonging to a specific participant.
         [HttpGet("my-enrolments")]
         public async Task<IActionResult> GetMyEnrolments(
             [FromQuery] string email)
         {
-            // Check that an email address was supplied.
             if (string.IsNullOrWhiteSpace(email))
             {
                 return BadRequest(new
@@ -49,7 +82,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Find the participant using their email address.
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email.Trim());
 
@@ -61,7 +93,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Retrieve only this participant's enrolments.
             var enrolments = await _context.Enrolments
                 .Where(e => e.UserId == user.Id)
                 .Include(e => e.Event)
@@ -103,7 +134,6 @@ namespace RaceDay.API.Controllers
         public async Task<IActionResult> CreateEnrolment(
             [FromBody] CreateEnrolmentDto dto)
         {
-            // Check whether the participant exists.
             var user = await _context.Users.FindAsync(dto.UserId);
 
             if (user == null)
@@ -114,8 +144,9 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Only participant accounts may enrol in events.
-            if (!string.Equals(user.Role, "Participant",
+            if (!string.Equals(
+                user.Role,
+                "Participant",
                 StringComparison.OrdinalIgnoreCase))
             {
                 return BadRequest(new
@@ -124,7 +155,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Check whether the event exists.
             var raceEvent = await _context.Events.FindAsync(dto.EventId);
 
             if (raceEvent == null)
@@ -135,7 +165,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Prevent enrolment in an event that has already taken place.
             if (raceEvent.Date <= DateTime.UtcNow)
             {
                 return BadRequest(new
@@ -144,7 +173,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Check whether the selected category exists.
             var category = await _context.Categories.FindAsync(dto.CategoryId);
 
             if (category == null || category.EventId != dto.EventId)
@@ -155,8 +183,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Prevent the same participant from enrolling twice
-            // in the same event.
             bool alreadyEnrolled = await _context.Enrolments.AnyAsync(e =>
                 e.UserId == dto.UserId &&
                 e.EventId == dto.EventId);
@@ -169,7 +195,6 @@ namespace RaceDay.API.Controllers
                 });
             }
 
-            // Create the new enrolment.
             var enrolment = new Enrolment
             {
                 UserId = dto.UserId,
@@ -178,7 +203,6 @@ namespace RaceDay.API.Controllers
                 EnrolmentDate = DateTime.UtcNow
             };
 
-            // Save the enrolment to the database.
             _context.Enrolments.Add(enrolment);
             await _context.SaveChangesAsync();
 

@@ -17,13 +17,33 @@
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">@ev.Name</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">@ev.Location</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                @ev.Location
+                            </h6>
+
                             <p class="card-text">@ev.Description</p>
+
                             <ul class="list-group list-group-flush mb-3">
-                                <li class="list-group-item"><strong>Date:</strong> @ev.Date.ToString("yyyy-MM-dd HH:mm")</li>
-                                <li class="list-group-item"><strong>Distance:</strong> @ev.Distance km</li>
-                                <li class="list-group-item"><strong>Type:</strong> @ev.EventType</li>
+                                <li class="list-group-item">
+                                    <strong>Date:</strong>
+                                    @ev.Date.ToString("yyyy-MM-dd HH:mm")
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Distance:</strong>
+                                    @ev.Distance km
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Type:</strong>
+                                    @ev.EventType
+                                </li>
                             </ul>
+
+                            <a asp-controller="Participant"
+                               asp-action="EnterEvent"
+                               asp-route-eventId="@ev.Id"
+                               class="btn btn-success w-100">
+                                Enter Event
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -32,6 +52,8 @@
     }
     else
     {
-        <div class="alert alert-info">No race events are currently available in the catalog.</div>
+        <div class="alert alert-info">
+            No race events are currently available in the catalog.
+        </div>
     }
 </div>

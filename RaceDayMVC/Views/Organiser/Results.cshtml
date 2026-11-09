@@ -1,0 +1,143 @@
+﻿```cshtml
+@model RaceDayMVC.Models.OrganiserResultsPageVm
+
+@{
+    ViewData["Title"] = "Manage Results";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Manage Race Results</h2>
+            <p class="text-muted">@Model.EventName</p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (Model.Enrolments == null || !Model.Enrolments.Any())
+    {
+        <div class="alert alert-info">
+            No participants have enrolled in this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Enrolled Participants</h5>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Participant</th>
+                                <th>Category</th>
+                                <th>Saved Finish Time</th>
+                                <th>Saved Position</th>
+                                <th>Update Result</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model.Enrolments)
+                            {
+                                var savedTime = item.FinishTime.HasValue
+                                ? item.FinishTime.Value.ToString(@"hh\:mm\:ss")
+                                : "";
+
+                                <tr>
+                                    <td>@item.ParticipantEmail</td>
+                                    <td>@item.CategoryName</td>
+
+                                    <td>
+                                        @if (item.FinishTime.HasValue)
+                                        {
+                                            <span class="badge bg-success">
+                                                @savedTime
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not recorded
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (item.Position.HasValue)
+                                        {
+                                            <span class="badge bg-primary">
+                                                @item.Position
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not recorded
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <form asp-action="SaveResult"
+                                              asp-controller="Organiser"
+                                              method="post"
+                                              class="d-flex flex-column gap-2">
+
+                                            <input type="hidden"
+                                                   name="eventId"
+                                                   value="@Model.EventId" />
+
+                                            <input type="hidden"
+                                                   name="enrolmentId"
+                                                   value="@item.EnrolmentId" />
+
+                                            <input type="time"
+                                                   name="finishTime"
+                                                   step="1"
+                                                   class="form-control"
+                                                   value="@savedTime"
+                                                   required />
+
+                                            <input type="number"
+                                                   name="position"
+                                                   min="1"
+                                                   class="form-control"
+                                                   placeholder="Position"
+                                                   value="@item.Position"
+                                                   required />
+
+                                            <button type="submit"
+                                                    class="btn btn-primary btn-sm">
+                                                Save Result
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+```
