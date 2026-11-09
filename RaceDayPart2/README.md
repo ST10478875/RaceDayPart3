@@ -66,4 +66,4 @@ Docker build and run instructions will be added after the Docker configuration i
 The GitHub Actions workflow and build verification evidence will be added here.
 
 ## Video Demonstration
-The project demonstration video link will be added here.
+https://youtu.be/eZMsq9Qu2_s
